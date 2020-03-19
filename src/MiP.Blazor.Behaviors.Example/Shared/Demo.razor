@@ -1,0 +1,44 @@
+﻿@*enable behaviors*@
+@inherits BehaviorComponent
+
+@using System.ComponentModel
+@using System.Timers
+@using Data
+
+@*add property changed behavior*@
+@inject PropertyChangedBehavior PropertyChangedBehavior
+
+@inject TimeContainer _time
+@inject RandomContainer _random
+
+<div>
+    Clock: <span>@(_time.Time)</span>
+</div>
+
+<div>
+    RandomId: <span>@(_random.RandomId)</span>
+</div>
+
+@code {
+    private TimerBehavior UpdateClockTimer = new TimerBehavior { Interval = TimeSpan.FromSeconds(1) };
+    private TimerBehavior UpdateRandomTimer = new TimerBehavior { Interval = TimeSpan.FromSeconds(0.3) };
+
+    private void UpdateClockTimer_TimerElapsedHandler(object sender, ElapsedEventArgs e)
+    {
+        _time.Update();
+    }
+
+    private void UpdateRandomTimer_TimerElapsedHandler(object sender, ElapsedEventArgs e)
+    {
+        _random.Update();
+    }
+
+    protected override void OnPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+    {
+        // do custom stuff here
+
+        // base method effectively does
+        // await InvokeAsync(() => StateHasChanged());
+        base.OnPropertyChangedHandler(sender, e);
+    }
+}

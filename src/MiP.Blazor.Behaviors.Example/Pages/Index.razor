@@ -1,0 +1,38 @@
+﻿@page "/"
+
+@using Data
+@using System.Timers
+
+@*enable behaviors*@
+@inherits BehaviorComponent
+@*add the log behavior*@
+@inject LogBehavior LogBehavior
+
+<h1>Behaviors</h1>
+
+<p>Current count: @currentCount</p>
+
+<div>
+    <Demo />
+</div>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private TimerBehavior _timerBehavior = new TimerBehavior { Interval = TimeSpan.FromSeconds(1) };
+
+    public string Time { get; set; }
+
+    protected override async void OnTimerElapsedHandler(object sender, ElapsedEventArgs e)
+    {
+        currentCount += 5;
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
