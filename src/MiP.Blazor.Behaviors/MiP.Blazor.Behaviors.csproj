@@ -3,6 +3,20 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
+    <Description>Behaviors for Blazor. 
+Extract functionality from a Component into a Behavior to make it reusable.
+Reuse it by adding Behaviors to a Component.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/praschl/MiP.Blazor.Behaviors</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/praschl/MiP.Blazor.Behaviors</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>blazor behavior behaviors razor propertychanged INotifyPropertyChanged</PackageTags>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <PackageReleaseNotes>First Release</PackageReleaseNotes>
+    <Version>0.1.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

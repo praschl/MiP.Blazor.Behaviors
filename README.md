@@ -87,7 +87,7 @@ Finally the `OnTimerElapsedHandler` at (6) will update that number, which in tur
 (7) No Dispose? No unattaching from events? No need. The `PropertyChangedBehavior` and the `TimerBehavior` do handle that on their own.
 
 ## BehaviorComponent
-Components that want to use behaviors must `@inherit BehaviorComponent`. This component contains the logic to enables behaviors.
+Components that want to use behaviors must `@inherit BehaviorComponent`. This component contains the logic to enables behaviors. It also implements `IDisposable` and adds a virtual `Dispose(bool)` which calls the `Behavior.OnComponentDisposed`.
 
 ## Dependency Injection
 Behaviors can be injected using `@inject`. Because an instance of a behavior must not be shared between components, they have to be registered with transient lifetime, which can be done using the `.AddBehavior<TBehavior>()` extension method.
@@ -117,7 +117,7 @@ The default handler will call `StateHasChanged` on the component, using `InvokeA
 
 When the component is disposed, the behavior unsubscribes all event handlers.
 
-The behavior uses all instance members whos type implements the `INotifyPropertyChanged` interface. Static members are not supported, but protected and private members are.
+The behavior uses all instance members whos type implements the `INotifyPropertyChanged` interface. Static members are not supported, but protected and private members are. Nested properties are not searched for `INotifyPropertyChanged`.
 
 ## Creating your own Behaviors
 To write your own behavior, derive from `Behavior<T>` or `Behavior`.
