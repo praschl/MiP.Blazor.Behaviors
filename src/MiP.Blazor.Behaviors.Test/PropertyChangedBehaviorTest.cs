@@ -9,81 +9,124 @@ namespace MiP.Blazor.Behaviors.Test
     [TestClass]
     public class PropertyChangedBehaviorTest
     {
-        private TestModel _testModel;
+        private TestModel _testModel1;
+        private TestModel _testModel2;
         private IBehavior _propertyChangedBehavior;
+
+        private int _eventCount = 0;
+        private TestableBehaviorComponent _component;
 
         [TestInitialize]
         public void Initialize()
         {
-            _testModel = new TestModel();
+            _testModel1 = new TestModel();
+            _testModel2 = new TestModel();
             _propertyChangedBehavior = new PropertyChangedBehavior();
+
+            _component = new TestableBehaviorComponent(_propertyChangedBehavior)
+            {
+                PropertyChanged = () => _eventCount++,
+            };
+
+            _component.TestModel1 = _testModel1;
+
+            // simulate initializing by blazor
+            _propertyChangedBehavior.Component = _component;
+            _propertyChangedBehavior.OnInitialized();
+            _propertyChangedBehavior.OnParametersSet();
         }
 
         [TestMethod]
         public void Changing_property_triggers_rerender()
         {
             // arrange
-            var stateHasChangedWasCalled = false;
-
-            var component = new TestableBehaviorComponent(_testModel, _propertyChangedBehavior)
-            {
-                PropertyChanged = () => stateHasChangedWasCalled = true,
-            };
-
-            // simulate initializing by blazor
-            _propertyChangedBehavior.Component = component;
-            _propertyChangedBehavior.OnInitialized();
-            _propertyChangedBehavior.OnParametersSet();
-
             // act
-            _testModel.Data = 13;
+            _testModel1.Data = 1;
 
             // assert
-            stateHasChangedWasCalled.Should().BeTrue();
+            _eventCount.Should().Be(1);
         }
 
         [TestMethod]
         public void Unsubscribes_when_disposed()
         {
-            // arrange
-            var stateHasChangedWasCalled = false;
+            // act 1
+            _testModel1.Data = 1;
 
-            var component = new TestableBehaviorComponent(_testModel, _propertyChangedBehavior)
-            {
-                PropertyChanged = () => stateHasChangedWasCalled = true,
-            };
-
-            // simulate initializing by blazor
-            _propertyChangedBehavior.Component = component;
-            _propertyChangedBehavior.OnInitialized();
-            _propertyChangedBehavior.OnParametersSet();
-
-            _testModel.Data = 13;
-            Assert.IsTrue(stateHasChangedWasCalled);
-            stateHasChangedWasCalled = false;
+            _eventCount.Should().Be(1);
 
             // simulate removing from UI by blazor
             _propertyChangedBehavior.ComponentDisposed();
 
             // act
-            _testModel.Data = 13;
+            _testModel1.Data = 2;
 
             // assert
-            stateHasChangedWasCalled.Should().BeFalse();
+            _eventCount.Should().Be(1); // still
+        }
+
+        [TestMethod]
+        public void Additional_subscribes_after_repeated_OnParametersSet()
+        {
+            // set a new model
+            _component.TestModel1 = new TestModel();
+            _component.TestModel2 = new TestModel();
+
+            // act
+            _propertyChangedBehavior.OnParametersSet();
+
+            _eventCount.Should().Be(0);
+
+            // two changes after OnParametersSet
+            _component.TestModel1.Data = 1;
+            _eventCount.Should().Be(1);
+
+            _component.TestModel2.Data = 2;
+            _eventCount.Should().Be(2);
+        }
+
+        [TestMethod]
+        public void Additionally_unsubscribes_after_OnParametersSet()
+        {
+            // set a new model
+            _component.TestModel1 = new TestModel();
+            _component.TestModel2 = new TestModel();
+
+            // activate the new model
+            _propertyChangedBehavior.OnParametersSet();
+
+            var model1 = _component.TestModel1;
+            var model2 = _component.TestModel2;
+
+            // remove models
+            _component.TestModel1 = null;
+            _component.TestModel2 = null;
+
+            // and call OnParametersSet to unsubscribe from event.
+            _propertyChangedBehavior.OnParametersSet();
+
+            _eventCount.Should().Be(0);
+
+            // two changes after OnParametersSet on the old model should not change anything.
+            model1.Data = 1;
+            _eventCount.Should().Be(0);
+
+            model2.Data = 2;
+            _eventCount.Should().Be(0);
         }
 
         private class TestableBehaviorComponent : BehaviorComponent
         {
             [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members")]
             private IBehavior PropertyChangedBehavior { get; }
-            [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members")]
-            private TestModel TestModel { get; }
+
+            public TestModel TestModel1 { get; set; }
+            internal TestModel TestModel2 { get; set; }
 
             public Action PropertyChanged { get; set; }
 
-            public TestableBehaviorComponent(TestModel testModel, IBehavior propertyChangedBehavior)
+            public TestableBehaviorComponent(IBehavior propertyChangedBehavior)
             {
-                TestModel = testModel;
                 PropertyChangedBehavior = propertyChangedBehavior;
             }
 

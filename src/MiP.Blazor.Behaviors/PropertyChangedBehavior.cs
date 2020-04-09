@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MiP.Blazor.Behaviors
 {
@@ -15,7 +16,11 @@ namespace MiP.Blazor.Behaviors
     /// </remarks>
     public class PropertyChangedBehavior : Behavior<BehaviorComponent>
     {
-        private IReadOnlyCollection<INotifyPropertyChanged> _propertyChangedItems;
+        private static readonly IEqualityComparer<INotifyPropertyChanged> _comparer = new ReferenceComparer<INotifyPropertyChanged>();
+
+        private readonly HashSet<INotifyPropertyChanged> _propertyChangedItems = new HashSet<INotifyPropertyChanged>(_comparer);
+
+        private readonly object _lock = new object();
 
         /// <summary>
         /// Subscribes to <see cref="INotifyPropertyChanged"/>.
@@ -24,11 +29,36 @@ namespace MiP.Blazor.Behaviors
         {
             base.OnParametersSet();
 
-            _propertyChangedItems = ReflectionHelper.FindNotifyPropertyChanged(Component).Select(x => x.Instance).ToArray();
+            UpdateEvents();
+        }
 
-            foreach (var item in _propertyChangedItems)
+        /// <summary>
+        /// Subscribes to <see cref="INotifyPropertyChanged"/>.
+        /// </summary>
+        protected async override Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync().ConfigureAwait(false);
+
+            UpdateEvents();
+        }
+
+        private void UpdateEvents()
+        {
+            var currentInstances = ReflectionHelper.FindNotifyPropertyChanged(Component)
+                .Select(x => x.Instance);
+
+            var oldItems = _propertyChangedItems.Except(currentInstances, _comparer).ToArray();
+            foreach (var oldItem in oldItems)
             {
-                item.PropertyChanged += Item_PropertyChanged;
+                oldItem.PropertyChanged -= Item_PropertyChanged;
+                _propertyChangedItems.Remove(oldItem);
+            }
+
+            var newItems = currentInstances.Except(_propertyChangedItems, _comparer).ToArray();
+            foreach (var newItem in newItems)
+            {
+                newItem.PropertyChanged += Item_PropertyChanged;
+                _propertyChangedItems.Add(newItem);
             }
         }
 
