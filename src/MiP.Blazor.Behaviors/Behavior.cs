@@ -51,6 +51,14 @@ namespace MiP.Blazor.Behaviors
         }
 
         /// <summary>
+        /// Called by <see cref="Component"/>s <see cref="ComponentBase.ShouldRender"/>
+        /// </summary>
+        /// <param name="willRender"></param>
+        protected virtual void OnBeforeRender(bool willRender)
+        {
+        }
+
+        /// <summary>
         /// Called by <see cref="Component"/>s <see cref="ComponentBase.OnAfterRender"/>.
         /// </summary>
         protected virtual void OnAfterRender(bool firstRender)
@@ -122,6 +130,11 @@ namespace MiP.Blazor.Behaviors
         Task IBehavior.OnParametersSetAsync()
         {
             return OnParametersSetAsync();
+        }
+
+        void IBehavior.OnBeforeRender(bool willRender)
+        {
+            OnBeforeRender(willRender);
         }
 
         void IBehavior.OnAfterRender(bool firstRender)

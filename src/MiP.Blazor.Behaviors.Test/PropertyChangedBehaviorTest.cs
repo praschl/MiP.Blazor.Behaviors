@@ -10,7 +10,6 @@ namespace MiP.Blazor.Behaviors.Test
     public class PropertyChangedBehaviorTest
     {
         private TestModel _testModel1;
-        private TestModel _testModel2;
         private IBehavior _propertyChangedBehavior;
 
         private int _eventCount = 0;
@@ -20,7 +19,6 @@ namespace MiP.Blazor.Behaviors.Test
         public void Initialize()
         {
             _testModel1 = new TestModel();
-            _testModel2 = new TestModel();
             _propertyChangedBehavior = new PropertyChangedBehavior();
 
             _component = new TestableBehaviorComponent(_propertyChangedBehavior)

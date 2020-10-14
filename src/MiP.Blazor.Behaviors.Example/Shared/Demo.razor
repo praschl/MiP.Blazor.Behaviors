@@ -7,6 +7,7 @@
 
 @*add property changed behavior*@
 @inject PropertyChangedBehavior PropertyChangedBehavior
+@inject PerformanceBehavior PerformanceBehavior
 
 @inject TimeContainer _time
 @inject RandomContainer _random
@@ -21,7 +22,7 @@
 
 @code {
     private TimerBehavior UpdateClockTimer = new TimerBehavior { Interval = TimeSpan.FromSeconds(1) };
-    private TimerBehavior UpdateRandomTimer = new TimerBehavior { Interval = TimeSpan.FromSeconds(0.3) };
+    private TimerBehavior UpdateRandomTimer = new TimerBehavior { Interval = TimeSpan.FromSeconds(1.3) };
 
     private void UpdateClockTimer_TimerElapsedHandler(object sender, ElapsedEventArgs e)
     {

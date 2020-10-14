@@ -154,15 +154,20 @@ namespace MiP.Blazor.Behaviors
             }
         }
 
-        // keeping this for later
-        // result of all behaviors should be ORed together -> if one returns true -> render = true
-        // if one returns true, the rest does not have to be called, here we are deciding only whether we have to Render
-        // and shouldn't do any sideeffects.
+        /// <summary>
+        /// Returns a flag to indicate whether the component should render.
+        /// </summary>
+        protected override bool ShouldRender()
+        {
+            var shouldRender = base.ShouldRender();
 
-        //protected override bool ShouldRender()
-        //{
-        //    return base.ShouldRender();
-        //}
+            foreach (var behavior in _behaviors)
+            {
+                behavior.OnBeforeRender(shouldRender);
+            }
+
+            return shouldRender;
+        }
 
         /// <summary>
         /// Method invoked when the component is disposed.
