@@ -13,6 +13,8 @@ namespace MiP.Blazor.Behaviors
         void OnParametersSet();
         Task OnParametersSetAsync();
 
+        void OnBeforeRender(bool willRender);
+
         void OnAfterRender(bool firstRender);
         Task OnAfterRenderAsync(bool firstRender);
 

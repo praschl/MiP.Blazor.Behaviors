@@ -32,6 +32,7 @@ namespace MiP.Blazor.Behaviors.Example
 
             services.AddBehavior<LogBehavior>();
             services.AddBehavior<PropertyChangedBehavior>();
+            services.AddBehavior<PerformanceBehavior>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

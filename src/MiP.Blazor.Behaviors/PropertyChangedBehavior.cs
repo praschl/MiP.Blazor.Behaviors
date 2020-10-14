@@ -20,8 +20,6 @@ namespace MiP.Blazor.Behaviors
 
         private readonly HashSet<INotifyPropertyChanged> _propertyChangedItems = new HashSet<INotifyPropertyChanged>(_comparer);
 
-        private readonly object _lock = new object();
-
         /// <summary>
         /// Subscribes to <see cref="INotifyPropertyChanged"/>.
         /// </summary>
